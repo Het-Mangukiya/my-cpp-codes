@@ -1,26 +1,56 @@
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
+#include <algorithm>
 using namespace std;
-bool compare(pair<int,int> p1,pair<int,int> p2){
-    return p1.second>p2.second;
+
+// Comparator: Sort by profit in descending order
+bool compare(pair<int,int> p1, pair<int,int> p2) {
+    return p1.second > p2.second;
 }
-int main(){
-    vector<pair<int,int>> job(4,make_pair(0,0));
-    job[0] = make_pair(4,20);
-    job[1] = make_pair(1,10);
-    job[2] = make_pair(1,40);
-    job[3] = make_pair(1,30);
-    sort(job.begin(),job.end(),compare);
-    int profit = job[0].second;
-    int safe =  job[0].first;
-     cout<<"job"<<"0"<<"="<<job[0].first<<","<<job[0].second<<endl;
-    for(int i=1;i<job.size();i++)
-{
-     if(job[i].first>safe){
-        profit+=job[i].second;
-        safe = job[i].first;
-        cout<<"job"<<i<<"="<<job[i].first<<","<<job[i].second<<endl;
-     }
-}
-cout<<profit<<endl;
+
+int main() {
+
+    // (deadline, profit)
+    vector<pair<int,int>> job = {
+        {4,10},
+        {1,10},
+        {2,40},
+        {3,30}
+    };
+
+    // Step 1: Sort jobs by profit (descending)
+    sort(job.begin(), job.end(), compare);
+
+    int n = job.size();
+
+    // Step 2: Find maximum deadline
+    int maxDeadline = 0;
+    for(int i = 0; i < n; i++) {
+        maxDeadline = max(maxDeadline, job[i].first);
+    }
+
+    // Step 3: Create time slots
+    vector<int> slot(maxDeadline + 1, -1);
+
+    int totalProfit = 0;
+
+    // Step 4: Assign jobs to slots
+    for(int i = 0; i < n; i++) {
+
+        int deadline = job[i].first;
+        int profit = job[i].second;
+
+        // Try to place job in latest possible free slot
+        for(int t = deadline; t > 0; t--) {
+            if(slot[t] == -1) {
+                slot[t] = i;   // assign job
+                totalProfit += profit;
+                break;
+            }
+        }
+    }
+
+    cout << "Maximum Profit = " << totalProfit << endl;
+
+    return 0;
 }
